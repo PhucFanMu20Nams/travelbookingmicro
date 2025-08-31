@@ -1,0 +1,67 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: recommendationservice
+  labels:
+    app: recommendationservice
+spec:
+  selector:
+    matchLabels:
+      app: recommendationservice
+  template:
+    metadata:
+      labels:
+        app: recommendationservice
+    spec:
+      serviceAccountName: recommendationservice
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+      - name: server
+        securityContext:
+          {{- toYaml .Values.containerSecurityContext | nindent 10 }}
+        image: {{ .Values.services.recommendationservice.image.repository }}:{{ .Values.services.recommendationservice.image.tag | default .Values.global.imageTag }}
+        ports:
+        - containerPort: {{ .Values.services.recommendationservice.port }}
+        readinessProbe:
+          periodSeconds: 5
+          grpc:
+            port: {{ .Values.services.recommendationservice.port }}
+        livenessProbe:
+          periodSeconds: 5
+          grpc:
+            port: {{ .Values.services.recommendationservice.port }}
+        env:
+        - name: PORT
+          value: "{{ .Values.services.recommendationservice.port }}"
+        - name: PRODUCT_CATALOG_SERVICE_ADDR
+          value: "productcatalogservice:{{ .Values.services.productcatalogservice.port }}"
+        - name: DISABLE_PROFILER
+          value: "1"
+        resources:
+          {{- toYaml .Values.services.recommendationservice.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: recommendationservice
+  labels:
+    app: recommendationservice
+spec:
+  type: ClusterIP
+  selector:
+    app: recommendationservice
+  ports:
+  - name: grpc
+    port: {{ .Values.services.recommendationservice.port }}
+    targetPort: {{ .Values.services.recommendationservice.port }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: recommendationservice

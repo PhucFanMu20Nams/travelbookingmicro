@@ -1,0 +1,91 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  selector:
+    matchLabels:
+      app: frontend
+  template:
+    metadata:
+      labels:
+        app: frontend
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      serviceAccountName: frontend
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - name: server
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          image: {{ .Values.services.frontend.image.repository }}:{{ .Values.services.frontend.image.tag | default .Values.global.imageTag }}
+          ports:
+          - containerPort: {{ .Values.services.frontend.port }}
+          readinessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_healthz"
+              port: {{ .Values.services.frontend.port }}
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-readiness-probe"
+          livenessProbe:
+            initialDelaySeconds: 10
+            httpGet:
+              path: "/_healthz"
+              port: {{ .Values.services.frontend.port }}
+              httpHeaders:
+              - name: "Cookie"
+                value: "shop_session-id=x-liveness-probe"
+          env:
+          - name: PORT
+            value: "{{ .Values.services.frontend.port }}"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "productcatalogservice:{{ .Values.services.productcatalogservice.port }}"
+          - name: CURRENCY_SERVICE_ADDR
+            value: "currencyservice:{{ .Values.services.currencyservice.port }}"
+          - name: CART_SERVICE_ADDR
+            value: "cartservice:{{ .Values.services.cartservice.port }}"
+          - name: RECOMMENDATION_SERVICE_ADDR
+            value: "recommendationservice:{{ .Values.services.recommendationservice.port }}"
+          - name: SHIPPING_SERVICE_ADDR
+            value: "shippingservice:{{ .Values.services.shippingservice.port }}"
+          - name: CHECKOUT_SERVICE_ADDR
+            value: "checkoutservice:{{ .Values.services.checkoutservice.port }}"
+          - name: AD_SERVICE_ADDR
+            value: "adservice:{{ .Values.services.adservice.port }}"
+          - name: SHOPPING_ASSISTANT_SERVICE_ADDR
+            value: "shoppingassistantservice:80"
+          - name: ENABLE_PROFILER
+            value: "0"
+          resources:
+            {{- toYaml .Values.services.frontend.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  labels:
+    app: frontend
+spec:
+  type: {{ .Values.services.frontend.serviceType }}
+  selector:
+    app: frontend
+  ports:
+  - name: http
+    port: 80
+    targetPort: {{ .Values.services.frontend.port }}
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: frontend

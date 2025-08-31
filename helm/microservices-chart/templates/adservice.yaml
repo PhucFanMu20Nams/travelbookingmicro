@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: adservice
+  labels:
+    app: adservice
+spec:
+  selector:
+    matchLabels:
+      app: adservice
+  template:
+    metadata:
+      labels:
+        app: adservice
+    spec:
+      serviceAccountName: adservice
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+      - name: server
+        securityContext:
+          {{- toYaml .Values.containerSecurityContext | nindent 10 }}
+        image: {{ .Values.services.adservice.image.repository }}:{{ .Values.services.adservice.image.tag | default .Values.global.imageTag }}
+        ports:
+        - containerPort: {{ .Values.services.adservice.port }}
+        env:
+        - name: PORT
+          value: "{{ .Values.services.adservice.port }}"
+        resources:
+          {{- toYaml .Values.services.adservice.resources | nindent 10 }}
+        readinessProbe:
+          initialDelaySeconds: 20
+          periodSeconds: 15
+          grpc:
+            port: {{ .Values.services.adservice.port }}
+        livenessProbe:
+          initialDelaySeconds: 20
+          periodSeconds: 15
+          grpc:
+            port: {{ .Values.services.adservice.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: adservice
+  labels:
+    app: adservice
+spec:
+  type: ClusterIP
+  selector:
+    app: adservice
+  ports:
+  - name: grpc
+    port: {{ .Values.services.adservice.port }}
+    targetPort: {{ .Values.services.adservice.port }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: adservice

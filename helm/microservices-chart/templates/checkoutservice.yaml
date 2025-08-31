@@ -1,0 +1,72 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: checkoutservice
+  labels:
+    app: checkoutservice
+spec:
+  selector:
+    matchLabels:
+      app: checkoutservice
+  template:
+    metadata:
+      labels:
+        app: checkoutservice
+    spec:
+      serviceAccountName: checkoutservice
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+        - name: server
+          securityContext:
+            {{- toYaml .Values.containerSecurityContext | nindent 12 }}
+          image: {{ .Values.services.checkoutservice.image.repository }}:{{ .Values.services.checkoutservice.image.tag | default .Values.global.imageTag }}
+          ports:
+          - containerPort: {{ .Values.services.checkoutservice.port }}
+          readinessProbe:
+            grpc:
+              port: {{ .Values.services.checkoutservice.port }}
+          livenessProbe:
+            grpc:
+              port: {{ .Values.services.checkoutservice.port }}
+          env:
+          - name: PORT
+            value: "{{ .Values.services.checkoutservice.port }}"
+          - name: PRODUCT_CATALOG_SERVICE_ADDR
+            value: "productcatalogservice:{{ .Values.services.productcatalogservice.port }}"
+          - name: SHIPPING_SERVICE_ADDR
+            value: "shippingservice:{{ .Values.services.shippingservice.port }}"
+          - name: PAYMENT_SERVICE_ADDR
+            value: "paymentservice:{{ .Values.services.paymentservice.port }}"
+          - name: EMAIL_SERVICE_ADDR
+            value: "emailservice:{{ .Values.services.emailservice.port }}"
+          - name: CURRENCY_SERVICE_ADDR
+            value: "currencyservice:{{ .Values.services.currencyservice.port }}"
+          - name: CART_SERVICE_ADDR
+            value: "cartservice:{{ .Values.services.cartservice.port }}"
+          resources:
+            {{- toYaml .Values.services.checkoutservice.resources | nindent 12 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: checkoutservice
+  labels:
+    app: checkoutservice
+spec:
+  type: ClusterIP
+  selector:
+    app: checkoutservice
+  ports:
+  - name: grpc
+    port: {{ .Values.services.checkoutservice.port }}
+    targetPort: {{ .Values.services.checkoutservice.port }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: checkoutservice

@@ -1,0 +1,63 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: shippingservice
+  labels:
+    app: shippingservice
+spec:
+  selector:
+    matchLabels:
+      app: shippingservice
+  template:
+    metadata:
+      labels:
+        app: shippingservice
+    spec:
+      serviceAccountName: shippingservice
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+      - name: server
+        securityContext:
+          {{- toYaml .Values.containerSecurityContext | nindent 10 }}
+        image: {{ .Values.services.shippingservice.image.repository }}:{{ .Values.services.shippingservice.image.tag | default .Values.global.imageTag }}
+        ports:
+        - containerPort: {{ .Values.services.shippingservice.port }}
+        env:
+        - name: PORT
+          value: "{{ .Values.services.shippingservice.port }}"
+        - name: DISABLE_PROFILER
+          value: "1"
+        readinessProbe:
+          periodSeconds: 5
+          grpc:
+            port: {{ .Values.services.shippingservice.port }}
+        livenessProbe:
+          grpc:
+            port: {{ .Values.services.shippingservice.port }}
+        resources:
+          {{- toYaml .Values.services.shippingservice.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: shippingservice
+  labels:
+    app: shippingservice
+spec:
+  type: ClusterIP
+  selector:
+    app: shippingservice
+  ports:
+  - name: grpc
+    port: {{ .Values.services.shippingservice.port }}
+    targetPort: {{ .Values.services.shippingservice.port }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: shippingservice

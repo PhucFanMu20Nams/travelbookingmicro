@@ -1,0 +1,31 @@
+1. Get the application URL by running these commands:
+{{- if eq .Values.services.frontend.serviceType "LoadBalancer" }}
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        You can watch the status of by running 'kubectl get --namespace {{ .Release.Namespace }} svc -w frontend'
+  export SERVICE_IP=$(kubectl get svc --namespace {{ .Release.Namespace }} frontend --template "{{"{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}"}}")
+  echo http://$SERVICE_IP:80
+{{- else if eq .Values.services.frontend.serviceType "ClusterIP" }}
+  export POD_NAME=$(kubectl get pods --namespace {{ .Release.Namespace }} -l "app=frontend" -o jsonpath="{.items[0].metadata.name}")
+  export CONTAINER_PORT=$(kubectl get pod --namespace {{ .Release.Namespace }} $POD_NAME -o jsonpath="{.spec.containers[0].ports[0].containerPort}")
+  echo "Visit http://127.0.0.1:8080 to use your application"
+  kubectl --namespace {{ .Release.Namespace }} port-forward $POD_NAME 8080:$CONTAINER_PORT
+{{- end }}
+
+2. The following services have been deployed:
+   - Frontend (Web UI)
+   - Ad Service
+   - Cart Service (with Redis)
+   - Checkout Service
+   - Currency Service
+   - Email Service
+   - Payment Service
+   - Product Catalog Service
+   - Recommendation Service
+   - Shipping Service
+   - Load Generator
+
+3. To check the status of all pods:
+   kubectl get pods --namespace {{ .Release.Namespace }}
+
+4. To view logs for a specific service (e.g., frontend):
+   kubectl logs --namespace {{ .Release.Namespace }} -l app=frontend

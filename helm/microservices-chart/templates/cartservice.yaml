@@ -1,0 +1,120 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cartservice
+  labels:
+    app: cartservice
+spec:
+  selector:
+    matchLabels:
+      app: cartservice
+  template:
+    metadata:
+      labels:
+        app: cartservice
+    spec:
+      serviceAccountName: cartservice
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+      - name: server
+        securityContext:
+          {{- toYaml .Values.containerSecurityContext | nindent 10 }}
+        image: {{ .Values.services.cartservice.image.repository }}:{{ .Values.services.cartservice.image.tag | default .Values.global.imageTag }}
+        ports:
+        - containerPort: {{ .Values.services.cartservice.port }}
+        env:
+        - name: REDIS_ADDR
+          value: "redis-cart:{{ .Values.redis.port }}"
+        resources:
+          {{- toYaml .Values.services.cartservice.resources | nindent 10 }}
+        readinessProbe:
+          initialDelaySeconds: 15
+          grpc:
+            port: {{ .Values.services.cartservice.port }}
+        livenessProbe:
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          grpc:
+            port: {{ .Values.services.cartservice.port }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: cartservice
+  labels:
+    app: cartservice
+spec:
+  type: ClusterIP
+  selector:
+    app: cartservice
+  ports:
+  - name: grpc
+    port: {{ .Values.services.cartservice.port }}
+    targetPort: {{ .Values.services.cartservice.port }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: cartservice
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-cart
+  labels:
+    app: redis-cart
+spec:
+  selector:
+    matchLabels:
+      app: redis-cart
+  template:
+    metadata:
+      labels:
+        app: redis-cart
+    spec:
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+      - name: redis
+        securityContext:
+          {{- toYaml .Values.containerSecurityContext | nindent 10 }}
+        image: {{ .Values.redis.image }}
+        ports:
+        - containerPort: {{ .Values.redis.port }}
+        readinessProbe:
+          periodSeconds: 5
+          tcpSocket:
+            port: {{ .Values.redis.port }}
+        livenessProbe:
+          periodSeconds: 5
+          tcpSocket:
+            port: {{ .Values.redis.port }}
+        volumeMounts:
+        - mountPath: /data
+          name: redis-data
+        resources:
+          {{- toYaml .Values.redis.resources | nindent 10 }}
+      volumes:
+      - name: redis-data
+        emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: redis-cart
+  labels:
+    app: redis-cart
+spec:
+  type: ClusterIP
+  selector:
+    app: redis-cart
+  ports:
+  - name: tcp-redis
+    port: {{ .Values.redis.port }}
+    targetPort: {{ .Values.redis.port }}

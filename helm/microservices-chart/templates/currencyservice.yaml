@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: currencyservice
+  labels:
+    app: currencyservice
+spec:
+  selector:
+    matchLabels:
+      app: currencyservice
+  template:
+    metadata:
+      labels:
+        app: currencyservice
+    spec:
+      serviceAccountName: currencyservice
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
+      terminationGracePeriodSeconds: 5
+      securityContext:
+        {{- toYaml .Values.securityContext | nindent 8 }}
+      containers:
+      - name: server
+        securityContext:
+          {{- toYaml .Values.containerSecurityContext | nindent 10 }}
+        image: {{ .Values.services.currencyservice.image.repository }}:{{ .Values.services.currencyservice.image.tag | default .Values.global.imageTag }}
+        ports:
+        - name: grpc
+          containerPort: {{ .Values.services.currencyservice.port }}
+        env:
+        - name: PORT
+          value: "{{ .Values.services.currencyservice.port }}"
+        - name: DISABLE_PROFILER
+          value: "1"
+        readinessProbe:
+          grpc:
+            port: {{ .Values.services.currencyservice.port }}
+        livenessProbe:
+          grpc:
+            port: {{ .Values.services.currencyservice.port }}
+        resources:
+          {{- toYaml .Values.services.currencyservice.resources | nindent 10 }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: currencyservice
+  labels:
+    app: currencyservice
+spec:
+  type: ClusterIP
+  selector:
+    app: currencyservice
+  ports:
+  - name: grpc
+    port: {{ .Values.services.currencyservice.port }}
+    targetPort: {{ .Values.services.currencyservice.port }}
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: currencyservice
