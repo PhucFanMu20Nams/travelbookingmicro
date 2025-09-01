@@ -43,7 +43,6 @@ Key components include:
 | `oidc-setup` | Terraform code to configure GitLab OIDC authentication with AWS. |
 | `eksinfra` | Terraform code for deploying EKS, VPC, and add-ons. |
 | `helm` | Helm charts for all 11 microservices. |
-| `microservices/*` | Each of the 11 GitLab repositories for the microservices. |
 | `architecture` | Architecture diagrams and design documentation. |
 
 ## ⚙️ CI/CD Workflows
@@ -177,8 +176,6 @@ This project helps you learn:
 4. Run CI/CD pipelines in GitLab for each microservice repo.
 
 5. Deploy via Helm repo (triggered automatically).
-
----
 
 ## 🎥 Video Walkthrough
 
