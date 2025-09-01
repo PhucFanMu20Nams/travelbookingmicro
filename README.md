@@ -179,7 +179,7 @@ This project helps you learn:
 
 ## 🎥 Video Walkthrough
 
-📺 *A detailed step-by-step walkthrough is available on my [YouTube Channel](https://youtube.com/).*
+📺 *A detailed step-by-step walkthrough is available on my [YouTube Channel](https://youtube.com/@alausaseun).*
 *(Link will be updated once the video is published.)*
 
 
