@@ -4,8 +4,6 @@ This project demonstrates how to deploy the **Online Boutique** microservice app
 
 It is part of a tutorial series I recorded for my **YouTube channel** (📺 link will be added here once published). The goal of this repository and its related projects is to serve as both a **learning resource** and a **practical guide** for engineers who want to explore modern DevOps practices with GitLab and AWS.
 
----
-
 ## 📌 Project Overview
 
 - **Source Code**: Cloned from the [GoogleCloudPlatform microservices-demo](https://github.com/GoogleCloudPlatform/microservices-demo).
@@ -21,8 +19,6 @@ It is part of a tutorial series I recorded for my **YouTube channel** (📺 link
   - Deployments target **Amazon EKS** with Terraform-managed infrastructure.
 - **Authentication**: GitLab pipelines authenticate with AWS via **OIDC** (no static keys).
 - **Add-ons**: AWS Load Balancer Controller and kube-prometheus-stack installed with `eks-addons`.
-
----
 
 ## 🏗 Architecture
 
@@ -40,8 +36,6 @@ Key components include:
 - **AWS Load Balancer Controller**: Provides ALB integration for SSL termination and ingress.
 - **Prometheus & Grafana**: Installed via kube-prometheus-stack for observability.
 
----
-
 ## 📂 Repository Structure
 
 | Repository / Folder | Purpose |
@@ -51,8 +45,6 @@ Key components include:
 | `helm` | Helm charts for all 11 microservices. |
 | `microservices/*` | Each of the 11 GitLab repositories for the microservices. |
 | `architecture` | Architecture diagrams and design documentation. |
-
----
 
 ## ⚙️ CI/CD Workflows
 
@@ -81,9 +73,7 @@ Each microservice project contains a `.gitlab-ci.yml` pipeline with the followin
 workflow:
   rules:
     - if: '$CI_COMMIT_BRANCH == "feature/boutique-helm" && $CI_PIPELINE_SOURCE == "pipeline"'
-````
-
----
+```
 
 ## 🚀 Deployment Steps
 
@@ -113,8 +103,6 @@ workflow:
    * SSL termination configured on the ALB.
    * Application exposed with secure HTTPS endpoints.
 
----
-
 ## 🎯 Learning Objectives
 
 This project helps you learn:
@@ -126,8 +114,6 @@ This project helps you learn:
 5. Managing inter-repo updates (one repo updates another repo’s pipeline).
 6. Using **eks-addons** to install Kubernetes tools.
 7. Configuring SSL access via ALB and Load Balancer Controller.
-
----
 
 ## 🛠 Tech Stack & References
 
@@ -169,8 +155,6 @@ This project helps you learn:
 ### Helm
 
 * [ArtifactHub](https://artifacthub.io/)
-
----
 
 ## 🖥 How to Reproduce
 
