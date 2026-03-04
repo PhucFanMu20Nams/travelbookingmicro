@@ -1,0 +1,131 @@
+name: currencyservice
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "currencyservice/**"
+      - ".github/scripts/update-helm-values-pr.sh"
+      - ".github/workflows/currencyservice.yml"
+  push:
+    branches: [main]
+    paths:
+      - "currencyservice/**"
+      - ".github/scripts/update-helm-values-pr.sh"
+      - ".github/workflows/currencyservice.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  packages: write
+
+env:
+  SERVICE_NAME: currencyservice
+  GHCR_ORG: ${{ vars.GHCR_ORG || github.repository_owner }}
+
+jobs:
+  build:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: currencyservice/package-lock.json
+      - name: Install dependencies
+        working-directory: currencyservice
+        run: npm ci
+
+  test:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: build
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: currencyservice/package-lock.json
+      - name: Test
+        working-directory: currencyservice
+        run: npm run test || echo "No tests"
+
+  security:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: build
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: currencyservice/package-lock.json
+      - name: Security audit
+        working-directory: currencyservice
+        run: npm audit --audit-level=moderate || true
+
+  sonar:
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    needs: [test, security]
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: SonarCloud Scan
+        uses: SonarSource/sonarcloud-github-action@v3
+        with:
+          projectBaseDir: currencyservice
+          args: >
+            -Dsonar.projectKey=${{ vars.SONAR_ORGANIZATION }}_online-boutique_currencyservice
+            -Dsonar.organization=${{ vars.SONAR_ORGANIZATION }}
+            -Dsonar.host.url=${{ vars.SONAR_HOST_URL || 'https://sonarcloud.io' }}
+            -Dsonar.sources=.
+            -Dsonar.exclusions=node_modules/**
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+  package:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - uses: docker/setup-buildx-action@v3
+      - uses: docker/build-push-action@v6
+        with:
+          context: ./currencyservice
+          file: ./currencyservice/Dockerfile
+          push: true
+          tags: |
+            ghcr.io/${{ env.GHCR_ORG }}/${{ env.SERVICE_NAME }}:${{ github.sha }}
+            ghcr.io/${{ env.GHCR_ORG }}/${{ env.SERVICE_NAME }}:latest
+
+  update-helm:
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    needs: package
+    concurrency:
+      group: helm-values-pr
+      cancel-in-progress: false
+    env:
+      HELM_REPO: ${{ vars.HELM_REPO }}
+      HELM_REPO_PAT: ${{ secrets.HELM_REPO_PAT }}
+      SERVICE_NAME: currencyservice
+      GHCR_ORG: ${{ env.GHCR_ORG }}
+      IMAGE_TAG: ${{ github.sha }}
+    steps:
+      - uses: actions/checkout@v4
+      - name: Update Helm values and open PR
+        run: ./.github/scripts/update-helm-values-pr.sh

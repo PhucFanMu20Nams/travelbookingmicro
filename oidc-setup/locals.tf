@@ -1,9 +1,7 @@
 locals {
-  gitlab_projects = [
-    "<gitlab-repo-username>/<Repo-Name>",
-    "<gitlab-repo-username>/<Repo-Name>"
-  ]
+  github_repository_subject = "repo:${var.github_org}/${var.github_repo}:*"
+
   gitlab_project_conditions = [
-    for project in local.gitlab_projects : "project_path:${project}:ref_type:branch:ref:*"
+    for project in var.gitlab_projects : "project_path:${project}:ref_type:branch:ref:*"
   ]
 }

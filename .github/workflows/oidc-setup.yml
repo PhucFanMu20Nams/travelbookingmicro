@@ -1,0 +1,132 @@
+name: oidc-setup
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "oidc-setup/**"
+      - ".github/workflows/oidc-setup.yml"
+  push:
+    branches: [main]
+    paths:
+      - "oidc-setup/**"
+      - ".github/workflows/oidc-setup.yml"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Terraform action"
+        required: true
+        type: choice
+        default: plan
+        options:
+          - plan
+          - apply
+          - destroy
+
+permissions:
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'eu-west-2' }}
+  TF_IN_AUTOMATION: true
+
+jobs:
+  init:
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.action != 'destroy'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform init
+        run: terraform -chdir=oidc-setup init
+
+  validate:
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.action != 'destroy'
+    runs-on: ubuntu-latest
+    needs: init
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform validate
+        run: |
+          terraform -chdir=oidc-setup init
+          terraform -chdir=oidc-setup fmt -check -recursive
+          terraform -chdir=oidc-setup validate
+
+  plan:
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.action != 'destroy'
+    runs-on: ubuntu-latest
+    needs: validate
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform plan
+        run: |
+          terraform -chdir=oidc-setup init
+          terraform -chdir=oidc-setup plan -out tfplanfile
+          terraform -chdir=oidc-setup show -no-color tfplanfile > tfplanfile.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oidc-setup-plan
+          path: |
+            oidc-setup/tfplanfile
+            oidc-setup/tfplanfile.txt
+
+  apply:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply')
+    runs-on: ubuntu-latest
+    needs: plan
+    environment: infrastructure
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/download-artifact@v4
+        with:
+          name: oidc-setup-plan
+          path: oidc-setup
+      - name: Terraform apply
+        run: |
+          terraform -chdir=oidc-setup init
+          terraform -chdir=oidc-setup apply -input=false tfplanfile
+          terraform -chdir=oidc-setup output > oidc-setup/output.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: oidc-setup-output
+          path: oidc-setup/output.json
+
+  destroy:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+    runs-on: ubuntu-latest
+    environment: infrastructure
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform destroy
+        run: |
+          terraform -chdir=oidc-setup init
+          terraform -chdir=oidc-setup destroy -auto-approve

@@ -8,8 +8,8 @@ plugins {
 
 sonar {
     properties {
-        property "sonar.projectKey", "seunayolu_gitops-javacode"
-        property "sonar.organization", "seunayolu"
+        property "sonar.projectKey", System.getenv("SONAR_PROJECT_KEY") ?: "seunayolu_gitops-javacode"
+        property "sonar.organization", System.getenv("SONAR_ORGANIZATION") ?: "seunayolu"
     }
 }
 

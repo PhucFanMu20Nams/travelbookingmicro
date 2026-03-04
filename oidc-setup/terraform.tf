@@ -1,5 +1,10 @@
 terraform {
-  backend "http" {
+  backend "s3" {
+    bucket         = "online-boutique-terraform-state"
+    key            = "oidc-setup/terraform.tfstate"
+    region         = "eu-west-2"
+    dynamodb_table = "online-boutique-terraform-locks"
+    encrypt        = true
   }
 
   required_providers {

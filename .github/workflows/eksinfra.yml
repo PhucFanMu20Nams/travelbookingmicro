@@ -1,0 +1,138 @@
+name: eksinfra
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "eksinfra/**"
+      - ".github/workflows/eksinfra.yml"
+  push:
+    branches: [main]
+    paths:
+      - "eksinfra/**"
+      - ".github/workflows/eksinfra.yml"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: "Terraform action"
+        required: true
+        type: choice
+        default: plan
+        options:
+          - plan
+          - apply
+          - destroy
+
+permissions:
+  id-token: write
+  contents: read
+
+env:
+  AWS_REGION: ${{ vars.AWS_REGION || 'eu-west-2' }}
+  TF_IN_AUTOMATION: true
+
+jobs:
+  init:
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.action != 'destroy'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform init
+        run: terraform -chdir=eksinfra init
+
+  validate:
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.action != 'destroy'
+    runs-on: ubuntu-latest
+    needs: init
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform validate
+        run: |
+          terraform -chdir=eksinfra init
+          terraform -chdir=eksinfra fmt -check -recursive
+          terraform -chdir=eksinfra validate
+
+  security-scan:
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.action != 'destroy'
+    runs-on: ubuntu-latest
+    needs: init
+    steps:
+      - uses: actions/checkout@v4
+      - uses: bridgecrewio/checkov-action@v12
+        with:
+          directory: eksinfra/
+          framework: terraform
+
+  plan:
+    if: github.event_name != 'workflow_dispatch' || github.event.inputs.action != 'destroy'
+    runs-on: ubuntu-latest
+    needs: [validate, security-scan]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform plan
+        run: |
+          terraform -chdir=eksinfra init
+          terraform -chdir=eksinfra plan -out tfplanfile
+          terraform -chdir=eksinfra show -no-color tfplanfile > tfplanfile.txt
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eksinfra-plan
+          path: |
+            eksinfra/tfplanfile
+            eksinfra/tfplanfile.txt
+
+  apply:
+    if: (github.event_name == 'push' && github.ref == 'refs/heads/main') || (github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'apply')
+    runs-on: ubuntu-latest
+    needs: plan
+    environment: infrastructure
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/download-artifact@v4
+        with:
+          name: eksinfra-plan
+          path: eksinfra
+      - name: Terraform apply
+        run: |
+          terraform -chdir=eksinfra init
+          terraform -chdir=eksinfra apply -input=false tfplanfile
+      - name: Run health checks
+        run: |
+          chmod +x eksinfra/health-check.sh
+          ./eksinfra/health-check.sh
+
+  destroy:
+    if: github.event_name == 'workflow_dispatch' && github.event.inputs.action == 'destroy'
+    runs-on: ubuntu-latest
+    environment: infrastructure
+    steps:
+      - uses: actions/checkout@v4
+      - uses: aws-actions/configure-aws-credentials@v4
+        with:
+          role-to-assume: ${{ secrets.AWS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_REGION }}
+      - uses: hashicorp/setup-terraform@v3
+      - name: Terraform destroy
+        run: |
+          terraform -chdir=eksinfra init
+          terraform -chdir=eksinfra destroy -auto-approve
