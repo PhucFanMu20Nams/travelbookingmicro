@@ -12,7 +12,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-FROM --platform=$BUILDPLATFORM python:3.12.8-alpine@sha256:54bec49592c8455de8d5983d984efff76b6417a6af9b5dcc8d0237bf6ad3bd20 AS base
+FROM python:3.12.8-alpine AS base
 
 FROM base AS builder
 
@@ -22,7 +22,8 @@ RUN apk update \
 
 # get packages
 COPY requirements.txt .
-RUN pip install -r requirements.txt
+RUN pip install --upgrade pip "setuptools<71" wheel \
+    && pip install -r requirements.txt
 
 FROM base
 # Enable unbuffered logging
@@ -36,7 +37,7 @@ RUN apk update \
 WORKDIR /recommendationservice
 
 # Grab packages from builder
-COPY --from=builder /usr/local/lib/python3.12/ /usr/local/lib/python3.12/
+COPY --from=builder /usr/local/lib/python3.12/site-packages/ /usr/local/lib/python3.12/site-packages/
 
 # Add the application
 COPY . .
