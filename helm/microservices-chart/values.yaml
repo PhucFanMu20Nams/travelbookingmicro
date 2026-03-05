@@ -6,7 +6,7 @@ global:
 services:
   adservice:
     image:
-      repository: registry.gitlab.com/seunayolu/gitops-javacode/adservice
+      repository: ghcr.io/seunayolu/adservice
       tag: "bbe34b04"
     port: 9555
     resources:
@@ -18,7 +18,7 @@ services:
         memory: 300Mi
   cartservice:
     image:
-      repository: registry.gitlab.com/seunayolu/gitops-cartservice/cartservice
+      repository: ghcr.io/seunayolu/cartservice
       tag: "8087539b"
     port: 7070
     resources:
@@ -30,7 +30,7 @@ services:
         memory: 128Mi
   checkoutservice:
     image:
-      repository: registry.gitlab.com/seunayolu/gitops-checkoutservice/checkoutservice
+      repository: ghcr.io/seunayolu/checkoutservice
       tag: "25f72e28"
     port: 5050
     resources:
@@ -42,7 +42,7 @@ services:
         memory: 128Mi
   currencyservice:
     image:
-      repository: registry.gitlab.com/seunayolu/gitops-currencyservice/currencyservice
+      repository: ghcr.io/seunayolu/currencyservice
       tag: "89d6f18c"
     port: 7000
     resources:
@@ -54,7 +54,7 @@ services:
         memory: 128Mi
   emailservice:
     image:
-      repository: registry.gitlab.com/seunayolu/gitops-emailservice/emailservice
+      repository: ghcr.io/seunayolu/emailservice
       tag: "fed80416"
     port: 8080
     servicePort: 5000
@@ -67,7 +67,7 @@ services:
         memory: 128Mi
   frontend:
     image:
-      repository: registry.gitlab.com/seunayolu/gitops-frontend/frontend
+      repository: ghcr.io/seunayolu/frontend
       tag: "0ada6df3"
     port: 8080
     serviceType: ClusterIP
@@ -80,7 +80,7 @@ services:
         memory: 128Mi
   loadgenerator:
     image:
-      repository: registry.gitlab.com/seunayolu/gitops-loadgenerator/loadgenerator
+      repository: ghcr.io/seunayolu/loadgenerator
       tag: "fabd1cf7"
     replicas: 1
     users: "10"
@@ -94,7 +94,7 @@ services:
         memory: 512Mi
   paymentservice:
     image:
-      repository: registry.gitlab.com/seunayolu/gitops-paymentservice/paymentservice
+      repository: ghcr.io/seunayolu/paymentservice
       tag: "8ae99fb2"
     port: 50051
     resources:
@@ -106,7 +106,7 @@ services:
         memory: 128Mi
   productcatalogservice:
     image:
-      repository: registry.gitlab.com/seunayolu/gitops-productcatalogservice/productcatalogservice
+      repository: ghcr.io/seunayolu/productcatalogservice
       tag: "9f82850e"
     port: 3550
     resources:
@@ -118,7 +118,7 @@ services:
         memory: 128Mi
   recommendationservice:
     image:
-      repository: registry.gitlab.com/seunayolu/gitops-recommendationservice/recommendationservice
+      repository: ghcr.io/seunayolu/recommendationservice
       tag: "5915f761"
     port: 8080
     resources:
@@ -130,7 +130,7 @@ services:
         memory: 450Mi
   shippingservice:
     image:
-      repository: registry.gitlab.com/seunayolu/gitops-shippingservice/shippingservice
+      repository: ghcr.io/seunayolu/shippingservice
       tag: "e10f1908"
     port: 50051
     resources:

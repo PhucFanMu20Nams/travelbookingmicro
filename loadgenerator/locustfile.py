@@ -18,9 +18,11 @@ import random
 from locust import FastHttpUser, TaskSet, between
 from faker import Faker
 import datetime
+
 fake = Faker()
 
-products = [
+# Keep legacy IDs for compatibility with existing catalog contracts.
+travel_offerings = [
     '0PUK6V6EV0',
     '1YMWWN1N4O',
     '2ZYFJ3GM2N',
@@ -29,35 +31,43 @@ products = [
     '9SIQT8TOJO',
     'L9ECAV7KIM',
     'LS4PSXUNUM',
-    'OLJCESPC7Z']
+    'OLJCESPC7Z',
+]
 
-def index(l):
+
+def openHomePage(l):
     l.client.get("/")
+
 
 def setCurrency(l):
     currencies = ['EUR', 'USD', 'JPY', 'CAD', 'GBP', 'TRY']
-    l.client.post("/setCurrency",
-        {'currency_code': random.choice(currencies)})
+    l.client.post("/setCurrency", {'currency_code': random.choice(currencies)})
 
-def browseProduct(l):
-    l.client.get("/product/" + random.choice(products))
 
-def viewCart(l):
+def browseDestination(l):
+    l.client.get("/product/" + random.choice(travel_offerings))
+
+
+def viewItinerary(l):
     l.client.get("/cart")
 
-def addToCart(l):
-    product = random.choice(products)
-    l.client.get("/product/" + product)
+
+def addToItinerary(l):
+    offering = random.choice(travel_offerings)
+    l.client.get("/product/" + offering)
     l.client.post("/cart", {
-        'product_id': product,
-        'quantity': random.randint(1,10)})
-    
-def empty_cart(l):
+        'product_id': offering,
+        'quantity': random.randint(1, 10),
+    })
+
+
+def clearItinerary(l):
     l.client.post('/cart/empty')
 
-def checkout(l):
-    addToCart(l)
-    current_year = datetime.datetime.now().year+1
+
+def confirmBooking(l):
+    addToItinerary(l)
+    current_year = datetime.datetime.now().year + 1
     l.client.post("/cart/checkout", {
         'email': fake.email(),
         'street_address': fake.street_address(),
@@ -70,22 +80,26 @@ def checkout(l):
         'credit_card_expiration_year': random.randint(current_year, current_year + 70),
         'credit_card_cvv': f"{random.randint(100, 999)}",
     })
-    
+
+
 def logout(l):
-    l.client.get('/logout')  
+    l.client.get('/logout')
 
 
 class UserBehavior(TaskSet):
 
     def on_start(self):
-        index(self)
+        openHomePage(self)
 
-    tasks = {index: 1,
+    tasks = {
+        openHomePage: 1,
         setCurrency: 2,
-        browseProduct: 10,
-        addToCart: 2,
-        viewCart: 3,
-        checkout: 1}
+        browseDestination: 10,
+        addToItinerary: 2,
+        viewItinerary: 3,
+        confirmBooking: 1,
+    }
+
 
 class WebsiteUser(FastHttpUser):
     tasks = [UserBehavior]

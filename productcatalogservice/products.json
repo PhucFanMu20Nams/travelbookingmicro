@@ -1,112 +1,112 @@
 {
-    "products": [
-        {
-            "id": "OLJCESPC7Z",
-            "name": "Sunglasses",
-            "description": "Add a modern touch to your outfits with these sleek aviator sunglasses.",
-            "picture": "/static/img/products/sunglasses.jpg",
-            "priceUsd": {
-                "currencyCode": "USD",
-                "units": 19,
-                "nanos": 990000000
-            },
-            "categories": ["accessories"]
-        },
-        {
-            "id": "66VCHSJNUP",
-            "name": "Tank Top",
-            "description": "Perfectly cropped cotton tank, with a scooped neckline.",
-            "picture": "/static/img/products/tank-top.jpg",
-            "priceUsd": {
-                "currencyCode": "USD",
-                "units": 18,
-                "nanos": 990000000
-            },
-            "categories": ["clothing", "tops"]
-        },
-        {
-            "id": "1YMWWN1N4O",
-            "name": "Watch",
-            "description": "This gold-tone stainless steel watch will work with most of your outfits.",
-            "picture": "/static/img/products/watch.jpg",
-            "priceUsd": {
-                "currencyCode": "USD",
-                "units": 109,
-                "nanos": 990000000
-            },
-            "categories": ["accessories"]
-        },
-        {
-            "id": "L9ECAV7KIM",
-            "name": "Loafers",
-            "description": "A neat addition to your summer wardrobe.",
-            "picture": "/static/img/products/loafers.jpg",
-            "priceUsd": {
-                "currencyCode": "USD",
-                "units": 89,
-                "nanos": 990000000
-            },
-            "categories": ["footwear"]
-        },
-        {
-            "id": "2ZYFJ3GM2N",
-            "name": "Hairdryer",
-            "description": "This lightweight hairdryer has 3 heat and speed settings. It's perfect for travel.",
-            "picture": "/static/img/products/hairdryer.jpg",
-            "priceUsd": {
-                "currencyCode": "USD",
-                "units": 24,
-                "nanos": 990000000
-            },
-            "categories": ["hair", "beauty"]
-        },
-        {
-            "id": "0PUK6V6EV0",
-            "name": "Candle Holder",
-            "description": "This small but intricate candle holder is an excellent gift.",
-            "picture": "/static/img/products/candle-holder.jpg",
-            "priceUsd": {
-                "currencyCode": "USD",
-                "units": 18,
-                "nanos": 990000000
-            },
-            "categories": ["decor", "home"]
-        },
-        {
-            "id": "LS4PSXUNUM",
-            "name": "Salt & Pepper Shakers",
-            "description": "Add some flavor to your kitchen.",
-            "picture": "/static/img/products/salt-and-pepper-shakers.jpg",
-            "priceUsd": {
-                "currencyCode": "USD",
-                "units": 18,
-                "nanos": 490000000
-            },
-            "categories": ["kitchen"]
-        },
-        {
-            "id": "9SIQT8TOJO",
-            "name": "Bamboo Glass Jar",
-            "description": "This bamboo glass jar can hold 57 oz (1.7 l) and is perfect for any kitchen.",
-            "picture": "/static/img/products/bamboo-glass-jar.jpg",
-            "priceUsd": {
-                "currencyCode": "USD",
-                "units": 5,
-                "nanos": 490000000
-            },
-            "categories": ["kitchen"]
-        },
-        {
-            "id": "6E92ZMYYFZ",
-            "name": "Mug",
-            "description": "A simple mug with a mustard interior.",
-            "picture": "/static/img/products/mug.jpg",
-            "priceUsd": {
-                "currencyCode": "USD",
-                "units": 8,
-                "nanos": 990000000
-            },
-            "categories": ["kitchen"]
-        }
-    ]
+  "products": [
+    {
+      "id": "OLJCESPC7Z",
+      "name": "Ho Chi Minh -> Tokyo Flight",
+      "description": "Direct round-trip flight from Ho Chi Minh City to Tokyo Narita. Economy class includes one 23kg checked bag.",
+      "picture": "/static/img/products/flight-tokyo.jpg",
+      "priceUsd": {
+        "currencyCode": "USD",
+        "units": 450,
+        "nanos": 0
+      },
+      "categories": ["flights", "asia"]
+    },
+    {
+      "id": "66VCHSJNUP",
+      "name": "Bali Luxury Resort - 5 Nights",
+      "description": "Five-night stay at a beachfront luxury resort in Seminyak, Bali. Includes breakfast and airport transfer.",
+      "picture": "/static/img/products/hotel-bali.jpg",
+      "priceUsd": {
+        "currencyCode": "USD",
+        "units": 899,
+        "nanos": 0
+      },
+      "categories": ["hotels", "asia", "luxury"]
+    },
+    {
+      "id": "1YMWWN1N4O",
+      "name": "Ha Long Bay Day Tour",
+      "description": "Full-day cruise through Ha Long Bay with lunch, kayaking, and cave exploration.",
+      "picture": "/static/img/products/tour-halong.jpg",
+      "priceUsd": {
+        "currencyCode": "USD",
+        "units": 79,
+        "nanos": 990000000
+      },
+      "categories": ["tours", "asia", "adventure"]
+    },
+    {
+      "id": "L9ECAV7KIM",
+      "name": "London -> Paris Eurostar",
+      "description": "High-speed rail ticket from London St Pancras to Paris Gare du Nord in Standard Premier class.",
+      "picture": "/static/img/products/eurostar.jpg",
+      "priceUsd": {
+        "currencyCode": "USD",
+        "units": 189,
+        "nanos": 0
+      },
+      "categories": ["flights", "europe", "rail"]
+    },
+    {
+      "id": "2ZYFJ3GM2N",
+      "name": "Tokyo Capsule Hotel - 3 Nights",
+      "description": "Three-night capsule hotel stay in Shinjuku with easy access to major attractions.",
+      "picture": "/static/img/products/hotel-capsule.jpg",
+      "priceUsd": {
+        "currencyCode": "USD",
+        "units": 120,
+        "nanos": 0
+      },
+      "categories": ["hotels", "asia", "budget"]
+    },
+    {
+      "id": "0PUK6V6EV0",
+      "name": "Kenya Safari - 4 Days",
+      "description": "Four-day Masai Mara safari with guided game drives, tented camp accommodation, and all meals.",
+      "picture": "/static/img/products/safari-kenya.jpg",
+      "priceUsd": {
+        "currencyCode": "USD",
+        "units": 1299,
+        "nanos": 0
+      },
+      "categories": ["tours", "africa", "adventure", "luxury"]
+    },
+    {
+      "id": "LS4PSXUNUM",
+      "name": "New York -> Miami Flight",
+      "description": "One-way flight from JFK to Miami International in Economy Plus with extra legroom.",
+      "picture": "/static/img/products/flight-miami.jpg",
+      "priceUsd": {
+        "currencyCode": "USD",
+        "units": 159,
+        "nanos": 990000000
+      },
+      "categories": ["flights", "domestic"]
+    },
+    {
+      "id": "9SIQT8TOJO",
+      "name": "Swiss Alps Ski Lodge - 7 Nights",
+      "description": "Seven-night ski lodge stay in Zermatt with Matterhorn views, ski pass, and daily breakfast.",
+      "picture": "/static/img/products/hotel-swiss.jpg",
+      "priceUsd": {
+        "currencyCode": "USD",
+        "units": 2100,
+        "nanos": 0
+      },
+      "categories": ["hotels", "europe", "luxury", "winter"]
+    },
+    {
+      "id": "6E92ZMYYFZ",
+      "name": "Machu Picchu Trek - 3 Days",
+      "description": "Three-day guided trek to Machu Picchu with camping equipment, meals, and entrance fees included.",
+      "picture": "/static/img/products/tour-machu-picchu.jpg",
+      "priceUsd": {
+        "currencyCode": "USD",
+        "units": 599,
+        "nanos": 0
+      },
+      "categories": ["tours", "south-america", "adventure", "trekking"]
+    }
+  ]
 }

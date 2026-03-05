@@ -68,13 +68,13 @@ def create_app():
         prompt = request.json['message']
         prompt = unquote(prompt)
 
-        # Step 1 – Get a room description from Gemini-vision-pro
+        # Step 1 – Get travel context from the image
         llm_vision = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
         message = HumanMessage(
             content=[
                 {
                     "type": "text",
-                    "text": "You are a professional interior designer, give me a detailed decsription of the style of the room in this image",
+                    "text": "You are a professional travel advisor. Describe the destination style, scenery, and travel mood shown in this image.",
                 },
                 {"type": "image_url", "image_url": request.json['image']},
             ]
@@ -84,8 +84,8 @@ def create_app():
         print(response)
         description_response = response.content
 
-        # Step 2 – Similarity search with the description & user prompt
-        vector_search_prompt = f""" This is the user's request: {prompt} Find the most relevant items for that prompt, while matching style of the room described here: {description_response} """
+        # Step 2 – Similarity search with the travel context & user prompt
+        vector_search_prompt = f"""This is the traveler's request: {prompt}. Find the most relevant travel offerings for that request while matching this image context: {description_response}."""
         print(vector_search_prompt)
 
         docs = vectorstore.similarity_search(vector_search_prompt)
@@ -98,11 +98,14 @@ def create_app():
             print(f"Adding relevant document to prompt context: {doc_details}")
             relevant_docs += str(doc_details) + ", "
 
-        # Step 3 – Tie it all together by augmenting our call to Gemini-pro
+        # Step 3 – Tie it all together by augmenting our final recommendation call
         llm = ChatGoogleGenerativeAI(model="gemini-1.5-flash")
         design_prompt = (
-            f" You are an interior designer that works for Online Boutique. You are tasked with providing recommendations to a customer on what they should add to a given room from our catalog. This is the description of the room: \n"
-            f"{description_response} Here are a list of products that are relevant to it: {relevant_docs} Specifically, this is what the customer has asked for, see if you can accommodate it: {prompt} Start by repeating a brief description of the room's design to the customer, then provide your recommendations. Do your best to pick the most relevant item out of the list of products provided, but if none of them seem relevant, then say that instead of inventing a new product. At the end of the response, add a list of the IDs of the relevant products in the following format for the top 3 results: [<first product ID>], [<second product ID>], [<third product ID>] ")
+            f"You are a travel advisor for Travel Booking. Recommend travel offerings from the catalog only. "
+            f"Image context: {description_response}. Relevant catalog entries: {relevant_docs}. "
+            f"Traveler request: {prompt}. Start with a short summary of the travel vibe from the image, then provide recommendations. "
+            f"Only recommend catalog offerings that are relevant. If none are relevant, state that clearly and do not invent offerings. "
+            f"At the end, include top 3 offering IDs in this exact format: [<first product ID>], [<second product ID>], [<third product ID>].")
         print("Final design prompt: ")
         print(design_prompt)
         design_response = llm.invoke(

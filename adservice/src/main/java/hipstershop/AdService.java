@@ -147,48 +147,55 @@ public final class AdService {
   }
 
   private static ImmutableListMultimap<String, Ad> createAdsMap() {
-    Ad hairdryer =
+    Ad tokyoFlight =
         Ad.newBuilder()
-            .setRedirectUrl("/product/2ZYFJ3GM2N")
-            .setText("Hairdryer for sale. 50% off.")
+            .setRedirectUrl("/product/OLJCESPC7Z")
+            .setText("Tokyo flight deal available now. Save 20% this week.")
             .build();
-    Ad tankTop =
+    Ad baliResort =
         Ad.newBuilder()
             .setRedirectUrl("/product/66VCHSJNUP")
-            .setText("Tank top for sale. 20% off.")
+            .setText("Bali luxury resort package with breakfast included.")
             .build();
-    Ad candleHolder =
-        Ad.newBuilder()
-            .setRedirectUrl("/product/0PUK6V6EV0")
-            .setText("Candle holder for sale. 30% off.")
-            .build();
-    Ad bambooGlassJar =
-        Ad.newBuilder()
-            .setRedirectUrl("/product/9SIQT8TOJO")
-            .setText("Bamboo glass jar for sale. 10% off.")
-            .build();
-    Ad watch =
+    Ad halongTour =
         Ad.newBuilder()
             .setRedirectUrl("/product/1YMWWN1N4O")
-            .setText("Watch for sale. Buy one, get second kit for free")
+            .setText("Ha Long Bay day tour deal with lunch and kayaking.")
             .build();
-    Ad mug =
-        Ad.newBuilder()
-            .setRedirectUrl("/product/6E92ZMYYFZ")
-            .setText("Mug for sale. Buy two, get third one for free")
-            .build();
-    Ad loafers =
+    Ad eurostar =
         Ad.newBuilder()
             .setRedirectUrl("/product/L9ECAV7KIM")
-            .setText("Loafers for sale. Buy one, get second one for free")
+            .setText("London to Paris Eurostar seats at great prices.")
+            .build();
+    Ad tokyoCapsule =
+        Ad.newBuilder()
+            .setRedirectUrl("/product/2ZYFJ3GM2N")
+            .setText("Tokyo capsule hotel stay for budget travelers.")
+            .build();
+    Ad kenyaSafari =
+        Ad.newBuilder()
+            .setRedirectUrl("/product/0PUK6V6EV0")
+            .setText("Kenya safari package now open for booking.")
+            .build();
+    Ad miamiFlight =
+        Ad.newBuilder()
+            .setRedirectUrl("/product/LS4PSXUNUM")
+            .setText("Fly New York to Miami with Economy Plus comfort.")
+            .build();
+    Ad swissLodge =
+        Ad.newBuilder()
+            .setRedirectUrl("/product/9SIQT8TOJO")
+            .setText("Swiss Alps ski lodge stay with pass included.")
+            .build();
+    Ad machuPicchu =
+        Ad.newBuilder()
+            .setRedirectUrl("/product/6E92ZMYYFZ")
+            .setText("Machu Picchu trek package for adventure seekers.")
             .build();
     return ImmutableListMultimap.<String, Ad>builder()
-        .putAll("clothing", tankTop)
-        .putAll("accessories", watch)
-        .putAll("footwear", loafers)
-        .putAll("hair", hairdryer)
-        .putAll("decor", candleHolder)
-        .putAll("kitchen", bambooGlassJar, mug)
+        .putAll("flights", tokyoFlight, eurostar, miamiFlight)
+        .putAll("hotels", baliResort, tokyoCapsule, swissLodge)
+        .putAll("tours", halongTour, kenyaSafari, machuPicchu)
         .build();
   }
 

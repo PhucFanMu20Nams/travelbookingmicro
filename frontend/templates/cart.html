@@ -27,9 +27,9 @@
 
         {{ if eq (len $.items) 0 }}
         <section class="empty-cart-section">
-            <h3>Your shopping cart is empty!</h3>
-            <p>Items you add to your shopping cart will appear here.</p>
-            <a class="cymbal-button-primary" href="{{ $.baseUrl }}/" role="button">Continue Shopping</a>
+            <h3>Your travel itinerary is empty!</h3>
+            <p>Travel experiences you book will appear here.</p>
+            <a class="cymbal-button-primary" href="{{ $.baseUrl }}/" role="button">Explore More Destinations</a>
         </section>
         {{ else }}
         <section class="container">
@@ -39,15 +39,15 @@
 
                     <div class="row mb-3 py-2">
                         <div class="col-4 pl-md-0">
-                            <h3>Cart ({{ $.cart_size }})</h3>
+                            <h3>Itinerary ({{ $.cart_size }})</h3>
                         </div>
                         <div class="col-8 pr-md-0 text-right">
                             <form method="POST" action="{{ $.baseUrl }}/cart/empty">
                                 <button class="cymbal-button-secondary cart-summary-empty-cart-button" type="submit">
-                                    Empty Cart
+                                    Clear Itinerary
                                 </button>
                                 <a class="cymbal-button-primary" href="{{ $.baseUrl }}/" role="button">
-                                    Continue Shopping
+                                    Explore More
                                 </a>
                             </form>
                         </div>
@@ -68,12 +68,12 @@
                             </div>
                             <div class="row cart-summary-item-row-item-id-row">
                                 <div class="col">
-                                    SKU #{{ .Item.Id }}
+                                    Booking #{{ .Item.Id }}
                                 </div>
                             </div>
                             <div class="row">
                                 <div class="col">
-                                    Quantity: {{ .Quantity }}
+                                    Travelers: {{ .Quantity }}
                                 </div>
                                 <div class="col pr-md-0 text-right">
                                     <strong>
@@ -86,7 +86,7 @@
                     {{ end }}
 
                     <div class="row cart-summary-shipping-row">
-                        <div class="col pl-md-0">Shipping</div>
+                        <div class="col pl-md-0">Service Fee</div>
                         <div class="col pr-md-0 text-right">{{ renderMoney .shipping_cost }}</div>
                     </div>
 
@@ -103,7 +103,7 @@
 
                         <div class="row">
                             <div class="col">
-                                <h3>Shipping Address</h3>
+                                <h3>Billing Information</h3>
                             </div>
                         </div>
 
@@ -210,7 +210,7 @@
                         <div class="form-row justify-content-center">
                             <div class="col text-center">
                                 <button class="cymbal-button-primary" type="submit">
-                                    Place Order
+                                    Confirm Booking
                                 </button>
                             </div>
                         </div>

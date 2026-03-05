@@ -30,14 +30,14 @@
         <div id="chat-modal" class="chat-modal">
           <div id="bot-messages" class="bot-messages">
             <p class="bot-message">
-              <span class="bot-message-text">Hi, I'm the Cymbal Shops assistant. I can help you with your shopping experience.</span>
+              <span class="bot-message-text">Hi, I'm the Travel Booking assistant. I can help you plan trips and find travel deals.</span>
             </p>
             <p class="bot-message">
               <span class="bot-message-text">What can I help you with?</span>
             </p>
           </div>
           <div class="bot-input">
-            <input id="bot-input-text" type="text" style="margin-right: 30px;" class="bot-input-text" placeholder="Recommend me items...">
+            <input id="bot-input-text" type="text" style="margin-right: 30px;" class="bot-input-text" placeholder="Recommend me destinations...">
             <input type="file" class="bot-input-file-button"  onchange="getBase64()">
             <button id="bot-input-button" class="bot-input-button">Send</button>
           </div>
@@ -130,7 +130,7 @@
     botMessages.appendChild(botMessage);
     botMessages.scrollTo(0, botMessages.scrollHeight);
 
-    // Request a response from the Shopping Assistant
+    // Request a response from the Travel Assistant
     const response = await fetch("{{ $.baseUrl }}/bot", {
       method: "POST",
       headers: {
